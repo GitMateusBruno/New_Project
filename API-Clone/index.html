@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Marcas de Carro</h1>
+    
+    <button class="marcas" onclick="searchXmlHttpReq()">Buscar (XML HTTP Request)</button>
+    <br><br>
+    <button class="marcas" onclick="searchAjax()">Buscar (AJAX)</button>
+    <br><br>
+    <button class="marcas" onclick="searchFetchAPI()">Buscar (Fetch API)</button>
+    <br><br>
+    <button class="marcas" onclick="clearItems()">Limpar</button>
+    
+
+    <h2>Resultado da Busca</h2>
+    <ul id="marcas"></ul>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script>
+        const URL = 'https://parallelum.com.br/fipe/api/v1/carros/marcas';
+        
+        searchXmlHttpReq = () => {
+            console.log('XMLHttpRequest');
+
+            function reqListener () {
+                let names = mapNames(JSON.parse(this.responseText));
+    
+                listAll(names);
+            };
+    
+            let req = new XMLHttpRequest();
+            req.onload = reqListener;
+            req.open("get", URL, true);
+            req.send();
+        }
+    
+        searchAjax = () => {
+            console.log('searchAjax');
+
+            var jqxhr = $.get(URL, function(data) {
+                let names = mapNames(data);
+    
+                listAll(names);
+            })
+            .fail(function() {
+                //console.log( "error" );
+            })
+            .always(function() {
+                //console.log( "finished" );
+            });
+        }
+    
+        searchFetchAPI = () => {
+            console.log('searchFetchAPI');
+    
+            fetch(URL)
+                .then((resp) => resp.json())
+                .then(function(response) {
+                    let names = mapNames(response);
+    
+                    listAll(names);
+    
+                    return response;
+                })
+                .catch(function(error) {
+                    console.log(error)
+                });
+        }
+    
+        createNode = (parent, id, text) => {
+            let li = document.createElement("li");
+            
+            li.appendChild(document.createTextNode(text));
+            li.setAttribute("id", id);
+    
+            return li;
+        }
+    
+        listAll = (result) => {
+            let ul = document.getElementById("marcas");
+            clearItems();
+    
+            for (let index = 0; index < result.length; index++) {
+                let li = createNode(ul, index, result[index]);
+    
+                ul.appendChild(li);
+            }       
+        }
+    
+        clearItems = () => marcas.innerHTML = "";
+    
+        mapNames = (list) => list.map((item) => item.nome);
+        
+    </script>
+</body>
+
+</html>
